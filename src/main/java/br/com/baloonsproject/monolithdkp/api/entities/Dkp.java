@@ -12,6 +12,7 @@ public class Dkp implements Serializable {
 	private Date date;
 	private Player player;
 	private Event event;
+	private Integer value;
 
 	public Dkp() {
 		// Default constructor
@@ -57,10 +58,18 @@ public class Dkp implements Serializable {
 		this.event = event;
 	}
 
+	public Integer getValue() {
+		return value;
+	}
+
+	public void setValue(Integer value) {
+		this.value = value;
+	}
+
 	@Override
 	public String toString() {
 		return "Dkp [id=" + id + ", description=" + description + ", date=" + date + ", player=" + player + ", event="
-				+ event + "]";
+				+ event + ", value=" + value + "]";
 	}
 
 }

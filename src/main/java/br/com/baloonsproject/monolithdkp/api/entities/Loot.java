@@ -3,17 +3,17 @@ package br.com.baloonsproject.monolithdkp.api.entities;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.hibernate.cache.spi.support.AbstractReadWriteAccess.Item;
+
 
 public class Loot implements Serializable {
 
 	private static final long serialVersionUID = -7595346736100979483L;
 
 	private Long id;
-	private Player player;
-	private Item item;
 	private Dkp dkp;
 	private Date date;
+	private Mob from;
+	private Integer wowHeadItemId;
 
 	public Loot() {
 		// Default constructor
@@ -25,22 +25,6 @@ public class Loot implements Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public Player getPlayer() {
-		return player;
-	}
-
-	public void setPlayer(Player player) {
-		this.player = player;
-	}
-
-	public Item getItem() {
-		return item;
-	}
-
-	public void setItem(Item item) {
-		this.item = item;
 	}
 
 	public Dkp getDkp() {
@@ -59,9 +43,25 @@ public class Loot implements Serializable {
 		this.date = date;
 	}
 
-	@Override
-	public String toString() {
-		return "Loot [id=" + id + ", player=" + player + ", item=" + item + ", dkp=" + dkp + ", data=" + date + "]";
+	public Mob getFrom() {
+		return from;
 	}
 
+	public void setFrom(Mob from) {
+		this.from = from;
+	}
+
+	public Integer getWowHeadItemId() {
+		return wowHeadItemId;
+	}
+
+	public void setWowHeadItemId(Integer wowHeadItemId) {
+		this.wowHeadItemId = wowHeadItemId;
+	}
+
+	@Override
+	public String toString() {
+		return "Loot [id=" + id + ", dkp=" + dkp + ", date=" + date + ", from=" + from
+				+ ", wowHeadItemId=" + wowHeadItemId + "]";
+	}
 }

@@ -12,6 +12,7 @@ public class Event implements Serializable {
 	private Long id;
 	private String name;
 	private Date date;
+	private String fileName;
 	private List<Player> players = new ArrayList<>();
 
 	public Event() {
@@ -42,9 +43,26 @@ public class Event implements Serializable {
 		this.date = date;
 	}
 
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	public List<Player> getPlayers() {
+		return players;
+	}
+
+	public void setPlayers(List<Player> players) {
+		this.players = players;
+	}
+
 	@Override
 	public String toString() {
-		return "Event [id=" + id + ", name=" + name + ", data=" + date + ", players=" + players + "]";
+		return "Event [id=" + id + ", name=" + name + ", date=" + date + ", fileName=" + fileName + ", players="
+				+ players + "]";
 	}
 
 }

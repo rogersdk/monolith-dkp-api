@@ -33,4 +33,17 @@ public class DateUtils {
 
 		return cal.getTime();
 	}
+	
+	public static Date getDateFromFileName(String fileName) {
+		String dateString = fileName.replaceAll("\\D", "");
+		Calendar cal = Calendar.getInstance();
+
+		if (!dateString.isEmpty()) {
+			cal.set(Calendar.DAY_OF_MONTH, Integer.valueOf(dateString.substring(0, 2)));
+			cal.set(Calendar.MONTH, Integer.valueOf(dateString.substring(2, 4)) - 1);
+			cal.set(Calendar.YEAR, Integer.valueOf(dateString.substring(4, 8)));
+		}
+
+		return cal.getTime();
+	}
 }

@@ -42,6 +42,10 @@ public class MonolithDkpParserTest {
 		cal.set(Calendar.MONTH, 01);
 		cal.set(Calendar.YEAR, 2020);
 		
+		cal.set(Calendar.HOUR, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		
 		Assert.assertEquals("DKP_CORE_10022020.HTML", e.getFileName());
 		Assert.assertEquals(cal.getTime(), e.getDate());
 	}

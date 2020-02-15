@@ -42,6 +42,10 @@ public class DateUtils {
 			cal.set(Calendar.DAY_OF_MONTH, Integer.valueOf(dateString.substring(0, 2)));
 			cal.set(Calendar.MONTH, Integer.valueOf(dateString.substring(2, 4)) - 1);
 			cal.set(Calendar.YEAR, Integer.valueOf(dateString.substring(4, 8)));
+			
+			cal.set(Calendar.HOUR, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.SECOND, 0);
 		}
 
 		return cal.getTime();

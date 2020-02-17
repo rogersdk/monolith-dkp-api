@@ -1,9 +1,7 @@
 package br.com.baloonsproject.monolithdkp.utils;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -21,46 +19,17 @@ import br.com.baloonsproject.monolithdkp.api.enums.ClassTypeEnum;
 public class MonolithDkpFileParser {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MonolithDkpFileParser.class);
-	/*
-	 * private static void parseFiles() throws IOException { try (Stream<Path> paths
-	 * = Files.walk(Paths.get("./data"))) {
-	 * paths.filter(Files::isRegularFile).filter( f ->
-	 * f.getFileName().toString().substring(f.getFileName().toString().length() -
-	 * 4).equals("HTML")) .forEach(f -> { File input = new File(f.toString()); try {
-	 * LOGGER.info(("Processing file: " + f.getFileName().toString())); Document doc
-	 * = Jsoup.parse(input, "UTF-8", f.getFileName().toString()); Elements
-	 * currentDkpElements = doc
-	 * .select("#DKP > div.divTable > div.divTableBody > div.divTableRow");
-	 * 
-	 * Elements currentDkpHistory = doc
-	 * .select("#DKPHistory > div.divTable > div.divTableBody > div.divTableRow");
-	 * 
-	 * Elements currentLootHistory = doc
-	 * .select("#LootHistory > div.divTable > div.divTableBody > div.divTableRow");
-	 * 
-	 * Date fileDate = getDateFromFilePath(f);
-	 * 
-	 * List<Dkp> dkpAtualizado = getUpdatedDkp(currentDkpElements, fileDate);
-	 * 
-	 * List<Dkp> historicoDkp = getDkpHistory(currentDkpHistory, fileDate);
-	 * 
-	 * List<Loot> lootHistory = getLootHistory(currentLootHistory, fileDate);
-	 * 
-	 * String filePath = "./data/json/" +
-	 * f.getFileName().toString().replaceAll("[\\.HTML]", "") + ".json";
-	 * 
-	 * Gson gson = new Gson();
-	 * 
-	 * String toJsonString = gson.toJson(dkpAtualizado);
-	 * 
-	 * } catch (IOException e) { e.printStackTrace(); } }); } }
-	 */
 
 	public static List<Loot> getLootHistory(Elements currentLootHistory) {
+		
+		if(currentLootHistory == null) {
+			throw new IllegalArgumentException("Html element can't be null");
+		}
+		
 		List<Loot> list = new ArrayList<>();
 
+		LOGGER.info("Parsing loot History...");
 		for (Element element : currentLootHistory) {
-			List<String> dkpValues = new ArrayList<>();
 			String dropMobName = "";
 			Date dropDate = null;
 			String wowHeadItemId = "";
@@ -103,7 +72,6 @@ public class MonolithDkpFileParser {
 				dkp.setDate(dropDate);
 				dkp.setDescription(String.format("Loot %d from %s", playerLoot.getWowHeadItemId(),
 						playerLoot.getFrom().getName()));
-//				dkp.setEvent(event);
 				dkp.setPlayer(player);
 				dkp.setValue(Integer.valueOf(dkpSpentLoot));
 
@@ -116,84 +84,88 @@ public class MonolithDkpFileParser {
 
 				// Setup setters
 				playerLoot.setDkp(dkp);
-				
+
+				LOGGER.info("Found a loot registry as {}", playerLoot);
+
 				list.add(playerLoot);
 			}
 
 		}
 
+		LOGGER.info("Parse of Loot History ended found {} entries.", list.size());
+
 		return list;
 	}
-	/*
-	 * public static List<Dkp> getDkpHistory(Elements currentDkpHistory) { List<Dkp>
-	 * dkpList = new ArrayList<>(); for (Element element : currentDkpHistory) {
-	 * List<String> dkpValues = new ArrayList<>(); String reasonStr = ""; Date
-	 * dataHistorico = null;
-	 * 
-	 * Elements playerNameElement = element.getElementsByClass("divPlayer");
-	 * 
-	 * if (!playerNameElement.text().isEmpty()) { Elements dkpValueReason =
-	 * element.getElementsByClass("divClass"); Elements dkpReason =
-	 * element.getElementsByClass("divDKP");
-	 * 
-	 * String dkpReasonReplaced = dkpReason.html();
-	 * 
-	 * List<String> dkpReasonValores =
-	 * Arrays.asList(dkpReasonReplaced.split("<br>"));
-	 * 
-	 * if (dkpReasonValores.size() > 1) { reasonStr =
-	 * dkpReasonValores.get(0).trim(); String dateStr = dkpReasonValores.get(1);
-	 * 
-	 * dateStr = dateStr.trim().replaceAll("[\\(\\)]", "");
-	 * 
-	 * dataHistorico = parseDateStringToDate(dateStr); }
-	 * 
-	 * if (!dkpValueReason.text().isEmpty()) { List<String> dkpValuesString =
-	 * Arrays.asList(dkpValueReason.text().split(","));
-	 * 
-	 * if (!dkpValuesString.isEmpty() && dkpValuesString.size() > 0) { for (String
-	 * dvr : dkpValuesString) { dkpValues.add(dvr); } } else {
-	 * dkpValues.add(dkpValueReason.text()); } }
-	 * 
-	 * String playerNamesHtml = playerNameElement.text(); if
-	 * (!playerNamesHtml.isEmpty()) { List<String> playerNames =
-	 * Arrays.asList(playerNamesHtml.split(","));
-	 * 
-	 * int dkpValueIndex = 0; for (String playerName : playerNames) { Player p = new
-	 * Player(playerName, "");
-	 * 
-	 * Dkp dkp = new Dkp(p, dkpValues.get(dkpValueIndex)); dkp.setReason(reasonStr);
-	 * dkp.setData(dataHistorico); dkpList.add(dkp); if (dkpValues.size() > 1) {
-	 * dkpValueIndex++; }
-	 * 
-	 * } } }
-	 * 
-	 * } return dkpList; }
-	 */
 
-	/*
-	 * public static List<Dkp> getUpdatedDkp(Elements currentDkpElements) {
-	 * List<Dkp> dkpAtualizado = new ArrayList<>();
-	 * 
-	 * for (Element dkpPlayerElement : currentDkpElements) { Elements
-	 * playerNameElement = dkpPlayerElement.getElementsByClass("divPlayer");
-	 * Elements playerClassType = dkpPlayerElement.getElementsByClass("divClass");
-	 * Elements playerDKP = dkpPlayerElement.getElementsByClass("divDKP");
-	 * 
-	 * if (!playerNameElement.text().isEmpty() &&
-	 * !playerClassType.select("img").attr("src").isEmpty()) {
-	 * 
-	 * PlayerClassType classType =
-	 * PlayerClassType.obterPorIcon(playerClassType.select("img").attr("src"));
-	 * 
-	 * Player p = new Player(playerNameElement.text(), classType.getClassType());
-	 * 
-	 * Dkp dkp = new Dkp(p, playerDKP.text()); dkp.setReason("DKP Atualizado");
-	 * dkp.setData(fileDate);
-	 * 
-	 * dkpAtualizado.add(dkp); } }
-	 * 
-	 * return dkpAtualizado; }
-	 */
+	public static List<Dkp> getDkpHistory(Elements currentDkpHistory) {
+		List<Dkp> dkpList = new ArrayList<>();
+		LOGGER.info("Parsing DKP History...");
+		for (Element element : currentDkpHistory) {
+			List<String> dkpValues = new ArrayList<>();
+			String reasonStr = "";
+			Date dataHistorico = null;
+
+			Elements playerNameElement = element.getElementsByClass("divPlayer");
+
+			if (!playerNameElement.text().isEmpty()) {
+				Elements dkpValueReason = element.getElementsByClass("divClass");
+				Elements dkpReason = element.getElementsByClass("divDKP");
+
+				String dkpReasonReplaced = dkpReason.html();
+
+				List<String> dkpReasonValores = Arrays.asList(dkpReasonReplaced.split("<br>"));
+
+				if (dkpReasonValores.size() > 1) {
+					reasonStr = dkpReasonValores.get(0).trim();
+					String dateStr = dkpReasonValores.get(1);
+
+					dateStr = dateStr.trim().replaceAll("[\\(\\)]", "");
+
+					dataHistorico = DateUtils.parseDateStringToDate(dateStr);
+				}
+
+				if (!dkpValueReason.text().isEmpty()) {
+					List<String> dkpValuesString = Arrays.asList(dkpValueReason.text().split(","));
+
+					if (!dkpValuesString.isEmpty()) {
+						for (String dvr : dkpValuesString) {
+							dkpValues.add(dvr);
+						}
+					} else {
+						dkpValues.add(dkpValueReason.text());
+					}
+				}
+
+				String playerNamesHtml = playerNameElement.text();
+				if (!playerNamesHtml.isEmpty()) {
+					List<String> playerNames = Arrays.asList(playerNamesHtml.split(","));
+
+					int dkpValueIndex = 0;
+					for (String playerName : playerNames) {
+						Player p = new Player();
+						p.setNickname(playerName);
+
+						Dkp dkp = new Dkp();
+						dkp.setDate(dataHistorico);
+						dkp.setDescription(reasonStr);
+
+						dkp.setPlayer(p);
+						dkp.setValue(Integer.valueOf(dkpValues.get(dkpValueIndex)));
+
+						dkpList.add(dkp);
+
+						if (dkpValues.size() > 1) {
+							dkpValueIndex++;
+						}
+
+						LOGGER.info("Parse of DKP History found {}", dkp);
+					}
+				}
+			}
+
+		}
+		LOGGER.info("Parse of DKP History ended found {} entries.", dkpList.size());
+		return dkpList;
+	}
 
 }

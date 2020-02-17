@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import br.com.baloonsproject.monolithdkp.api.entities.Dkp;
 import br.com.baloonsproject.monolithdkp.api.entities.Event;
 import br.com.baloonsproject.monolithdkp.api.entities.Loot;
 import br.com.baloonsproject.monolithdkp.services.MonolithDkpParser;
@@ -29,36 +30,39 @@ public class MonolithDkpParserImpl implements MonolithDkpParser {
 
 	@Override
 	public Event parseMonolithDkpFile(File file) {
+		Event event = new Event();
 		try {
-			Event event = new Event();
 			LOGGER.info(("Processing file: " + file.getName()));
 			Document doc = Jsoup.parse(file, "UTF-8", file.toString());
-
-			Elements currentDkpElements = doc.select("#DKP > div.divTable > div.divTableBody > div.divTableRow");
 
 			Elements currentDkpHistory = doc.select("#DKPHistory > div.divTable > div.divTableBody > div.divTableRow");
 
 			Elements currentLootHistory = doc
 					.select("#LootHistory > div.divTable > div.divTableBody > div.divTableRow");
 
-//			List<Dkp> dkpAtualizado = MonolithDkpFileParser.getUpdatedDkp(currentDkpElements);
-
-//			List<Dkp> historicoDkp = MonolithDkpFileParser.getDkpHistory(currentDkpHistory);
-
+			List<Dkp> historicoDkp = MonolithDkpFileParser.getDkpHistory(currentDkpHistory);
+//			LOGGER.info("Dkp History Parsed: {}", historicoDkp);
+			
 			List<Loot> lootHistory = MonolithDkpFileParser.getLootHistory(currentLootHistory);
-			LOGGER.info(String.format("Loot parsed: %s", lootHistory));
+//			LOGGER.info("Loot parsed: {}", lootHistory);
 			
 			event.setFileName(file.getName());
 			event.setDate(DateUtils.getDateFromFileName(file.getName()));
 			
+			LOGGER.info("File {} successfully parsed.", file.getName());
 			return event;
 		} catch (Exception e) {
 			LOGGER.error("Error while parsing monolith file", e);
 		}
 
-		Event event = new Event();
 
 		return event;
+	}
+
+	@Override
+	public List<Dkp> parseDkpHistory(File file) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

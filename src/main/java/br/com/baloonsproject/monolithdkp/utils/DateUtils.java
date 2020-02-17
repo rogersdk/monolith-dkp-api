@@ -18,6 +18,7 @@ public class DateUtils {
 		cal.set(Calendar.HOUR_OF_DAY, Integer.valueOf(dateStr.substring(9, 11)));
 		cal.set(Calendar.MINUTE, Integer.valueOf(dateStr.substring(12, 14)));
 		cal.set(Calendar.SECOND, Integer.valueOf(dateStr.substring(15, 17)));
+		cal.set(Calendar.MILLISECOND, 0);
 		return cal.getTime();
 	}
 
@@ -46,6 +47,8 @@ public class DateUtils {
 			cal.set(Calendar.HOUR, 0);
 			cal.set(Calendar.MINUTE, 0);
 			cal.set(Calendar.SECOND, 0);
+			
+			cal.set(Calendar.MILLISECOND, 0);
 		}
 
 		return cal.getTime();

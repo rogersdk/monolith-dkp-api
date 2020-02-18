@@ -14,6 +14,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "event")
@@ -25,6 +27,7 @@ public class Event implements Serializable {
 	private String name;
 	private Date date;
 	private String fileName;
+	private String fileContent;
 	private List<Player> players = new ArrayList<>();
 	private List<Dkp> dkps = new ArrayList<>();
 
@@ -51,6 +54,7 @@ public class Event implements Serializable {
 		this.name = name;
 	}
 
+	@Temporal(TemporalType.DATE)
 	@Column(name = "date")
 	public Date getDate() {
 		return date;
@@ -67,6 +71,15 @@ public class Event implements Serializable {
 
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
+	}
+
+	@Column(name = "file_content")
+	public String getFileContent() {
+		return fileContent;
+	}
+
+	public void setFileContent(String fileContent) {
+		this.fileContent = fileContent;
 	}
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

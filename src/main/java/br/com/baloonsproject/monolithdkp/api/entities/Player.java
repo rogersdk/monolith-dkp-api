@@ -2,8 +2,19 @@ package br.com.baloonsproject.monolithdkp.api.entities;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 import br.com.baloonsproject.monolithdkp.api.enums.ClassTypeEnum;
 
+@Entity
+@Table(name = "player")
 public class Player implements Serializable {
 
 	private static final long serialVersionUID = -6318265376379693986L;
@@ -16,6 +27,8 @@ public class Player implements Serializable {
 		// Default constructor
 	}
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	public Long getId() {
 		return id;
 	}
@@ -24,6 +37,7 @@ public class Player implements Serializable {
 		this.id = id;
 	}
 
+	@Column(name = "nickname")
 	public String getNickname() {
 		return nickname;
 	}
@@ -32,6 +46,8 @@ public class Player implements Serializable {
 		this.nickname = nickname;
 	}
 
+	@Enumerated(EnumType.STRING)
+	@Column(name = "class_type")
 	public ClassTypeEnum getClassType() {
 		return classType;
 	}

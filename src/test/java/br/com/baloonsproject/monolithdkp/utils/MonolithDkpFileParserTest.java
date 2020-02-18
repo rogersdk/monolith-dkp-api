@@ -72,7 +72,7 @@ public class MonolithDkpFileParserTest {
 		Assert.assertEquals(0, defaultDate.compareTo(l.getDate()));
 		Assert.assertEquals("PlayerOne", l.getDkp().getPlayer().getNickname());
 		Assert.assertEquals(-24, l.getDkp().getValue().intValue());
-		Assert.assertEquals(99999, l.getWowHeadItemId().intValue());
+		Assert.assertEquals(99999, l.getWowheadItemId().intValue());
 		Assert.assertEquals("Onyxia's Lair: Onyxia", l.getFrom().getName());
 	}
 

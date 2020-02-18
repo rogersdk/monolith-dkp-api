@@ -2,6 +2,15 @@ package br.com.baloonsproject.monolithdkp.api.entities;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "mob")
 public class Mob implements Serializable {
 
 	private static final long serialVersionUID = 4311922618504231368L;
@@ -13,6 +22,8 @@ public class Mob implements Serializable {
 		// Default constructor
 	}
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	public Long getId() {
 		return id;
 	}
@@ -21,6 +32,7 @@ public class Mob implements Serializable {
 		this.id = id;
 	}
 
+	@Column(name = "name")
 	public String getName() {
 		return name;
 	}

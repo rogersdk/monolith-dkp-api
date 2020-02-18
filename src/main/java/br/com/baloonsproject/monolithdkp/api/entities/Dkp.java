@@ -3,6 +3,19 @@ package br.com.baloonsproject.monolithdkp.api.entities;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+@Entity
+@Table(name = "dkp")
 public class Dkp implements Serializable {
 
 	private static final long serialVersionUID = 7151343599121804478L;
@@ -18,6 +31,8 @@ public class Dkp implements Serializable {
 		// Default constructor
 	}
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	public Long getId() {
 		return id;
 	}
@@ -26,6 +41,7 @@ public class Dkp implements Serializable {
 		this.id = id;
 	}
 
+	@Column(name = "description", nullable = false)
 	public String getDescription() {
 		return description;
 	}
@@ -34,6 +50,8 @@ public class Dkp implements Serializable {
 		this.description = description;
 	}
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "date", nullable = false)
 	public Date getDate() {
 		return date;
 	}
@@ -42,6 +60,7 @@ public class Dkp implements Serializable {
 		this.date = date;
 	}
 
+	@OneToOne
 	public Player getPlayer() {
 		return player;
 	}
@@ -50,6 +69,7 @@ public class Dkp implements Serializable {
 		this.player = player;
 	}
 
+	@ManyToOne
 	public Event getEvent() {
 		return event;
 	}
@@ -58,6 +78,7 @@ public class Dkp implements Serializable {
 		this.event = event;
 	}
 
+	@Column(name = "value", nullable = false)
 	public Integer getValue() {
 		return value;
 	}

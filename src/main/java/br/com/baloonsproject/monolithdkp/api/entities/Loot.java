@@ -3,8 +3,18 @@ package br.com.baloonsproject.monolithdkp.api.entities;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
-
+@Entity
+@Table(name = "loot")
 public class Loot implements Serializable {
 
 	private static final long serialVersionUID = -7595346736100979483L;
@@ -13,12 +23,14 @@ public class Loot implements Serializable {
 	private Dkp dkp;
 	private Date date;
 	private Mob from;
-	private Integer wowHeadItemId;
+	private Integer wowheadItemId;
 
 	public Loot() {
 		// Default constructor
 	}
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	public Long getId() {
 		return id;
 	}
@@ -27,6 +39,7 @@ public class Loot implements Serializable {
 		this.id = id;
 	}
 
+	@OneToOne
 	public Dkp getDkp() {
 		return dkp;
 	}
@@ -35,6 +48,8 @@ public class Loot implements Serializable {
 		this.dkp = dkp;
 	}
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "date", nullable = false)
 	public Date getDate() {
 		return date;
 	}
@@ -43,6 +58,7 @@ public class Loot implements Serializable {
 		this.date = date;
 	}
 
+	@OneToOne
 	public Mob getFrom() {
 		return from;
 	}
@@ -51,17 +67,18 @@ public class Loot implements Serializable {
 		this.from = from;
 	}
 
-	public Integer getWowHeadItemId() {
-		return wowHeadItemId;
+	@Column(name = "wowhead_item_id")
+	public Integer getWowheadItemId() {
+		return wowheadItemId;
 	}
 
-	public void setWowHeadItemId(Integer wowHeadItemId) {
-		this.wowHeadItemId = wowHeadItemId;
+	public void setWowheadItemId(Integer wowheadItemId) {
+		this.wowheadItemId = wowheadItemId;
 	}
 
 	@Override
 	public String toString() {
-		return "Loot [id=" + id + ", dkp=" + dkp + ", date=" + date + ", from=" + from
-				+ ", wowHeadItemId=" + wowHeadItemId + "]";
+		return "Loot [id=" + id + ", dkp=" + dkp + ", date=" + date + ", from=" + from + ", wowheadItemId="
+				+ wowheadItemId + "]";
 	}
 }

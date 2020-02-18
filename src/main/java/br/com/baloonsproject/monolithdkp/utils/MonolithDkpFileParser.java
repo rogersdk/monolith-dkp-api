@@ -65,12 +65,12 @@ public class MonolithDkpFileParser {
 					dropDate = DateUtils.parseDateStringToDate(dateStr);
 					playerLoot.setFrom(mobLoot);
 					playerLoot.setDate(dropDate);
-					playerLoot.setWowHeadItemId(Integer.valueOf(wowHeadItemId));
+					playerLoot.setWowheadItemId(Integer.valueOf(wowHeadItemId));
 				}
 
 				// Setup dkp values
 				dkp.setDate(dropDate);
-				dkp.setDescription(String.format("Loot %d from %s", playerLoot.getWowHeadItemId(),
+				dkp.setDescription(String.format("Loot %d from %s", playerLoot.getWowheadItemId(),
 						playerLoot.getFrom().getName()));
 				dkp.setPlayer(player);
 				dkp.setValue(Integer.valueOf(dkpSpentLoot));

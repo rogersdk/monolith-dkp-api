@@ -30,5 +30,9 @@ public class Response<T> {
 	public void setErrors(List<String> errors) {
 		this.errors = errors;
 	}
-
+	
+	public void addErrorMessage(String msg) {
+		this.errors.add(msg);
+	}
+	
 }

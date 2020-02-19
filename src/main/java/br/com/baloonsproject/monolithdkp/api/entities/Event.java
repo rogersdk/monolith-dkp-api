@@ -27,7 +27,6 @@ public class Event implements Serializable {
 	private String name;
 	private Date date;
 	private String fileName;
-	private String fileContent;
 	private List<Player> players = new ArrayList<>();
 	private List<Dkp> dkps = new ArrayList<>();
 
@@ -71,15 +70,6 @@ public class Event implements Serializable {
 
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
-	}
-
-	@Column(name = "file_content")
-	public String getFileContent() {
-		return fileContent;
-	}
-
-	public void setFileContent(String fileContent) {
-		this.fileContent = fileContent;
 	}
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

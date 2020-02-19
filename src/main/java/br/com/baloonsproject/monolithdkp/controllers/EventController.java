@@ -1,30 +1,33 @@
 package br.com.baloonsproject.monolithdkp.controllers;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
-
-import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import br.com.baloonsproject.monolithdkp.api.entities.Dkp;
 import br.com.baloonsproject.monolithdkp.api.entities.Event;
+import br.com.baloonsproject.monolithdkp.api.entities.Player;
 import br.com.baloonsproject.monolithdkp.dtos.EventDto;
 import br.com.baloonsproject.monolithdkp.response.Response;
 import br.com.baloonsproject.monolithdkp.services.EventService;
+import br.com.baloonsproject.monolithdkp.services.MonolithDkpParser;
+import br.com.baloonsproject.monolithdkp.utils.DateUtils;
 
 @RestController
 @RequestMapping("/api/events")
@@ -36,6 +39,9 @@ public class EventController {
 	@Autowired
 	private EventService service;
 
+	@Autowired
+	private MonolithDkpParser parserService;
+
 	public EventController() {
 		// Default Constructor
 	}
@@ -44,7 +50,7 @@ public class EventController {
 	 * @param fileName
 	 * @return
 	 */
-	@GetMapping(value = "/id/{id}")
+	@GetMapping(value = "/{id}")
 	public ResponseEntity<Response<EventDto>> findByFileName(@PathVariable("id") Long id) {
 		LOGGER.info("Searching for an Event with id {}", id);
 		Response<EventDto> response = new Response<>();
@@ -52,7 +58,7 @@ public class EventController {
 
 		if (!event.isPresent()) {
 			LOGGER.info("No event found");
-			response.getErrors().add(String.format("No event found with id %d",id));
+			response.getErrors().add(String.format("No event found with id %d", id));
 			return ResponseEntity.badRequest().body(response);
 		}
 
@@ -62,35 +68,59 @@ public class EventController {
 
 	private EventDto convertEventDto(Event event) {
 		EventDto dto = new EventDto();
+		dto.setDate(event.getDate());
+		dto.setFileName(event.getFileName());
+		dto.setId(event.getId());
+		dto.setName(event.getName());
 		return dto;
 	}
 
-	@PostMapping
-	public String teste() {
-		return "{\"status\": \"ok\"}";
-	}
-	
-//	@PostMapping(value = "/")
-	public ResponseEntity<Response<EventDto>> registerEvent(@Valid @RequestBody EventDto eventDto, BindingResult result)
-			throws UnsupportedEncodingException, IOException {
+	@PostMapping(value = "")
+	public ResponseEntity<Response<EventDto>> registerEvent(@RequestParam MultipartFile file,
+			@RequestParam String eventName) throws IOException {
 		LOGGER.info("dsd");
-
-		Event eventToBeSaved = convertDtoToEvent(eventDto);
-
-//		Optional<Event> event = service.save(newEvent);
-
 		Response<EventDto> response = new Response<>();
 
-		response.setData(eventDto);
-
-		return ResponseEntity.ok(response);
-	}
-
-	private Event convertDtoToEvent(@Valid EventDto eventDto) throws UnsupportedEncodingException, IOException {
 		Event event = new Event();
-		event.setFileContent(new String(eventDto.getFile().getBytes(), "UTF-8"));
+		event.setName(eventName);
 
-		return event;
+		Path filepath = Paths.get("/tmp", file.getOriginalFilename());
+		File loadedFile = filepath.toFile();
+		
+		event.setFileName(loadedFile.getName());
+		event.setDate(DateUtils.getDateFromFileName(loadedFile.getName()));
+		
+		List<Player> players = parserService.parsePlayers(loadedFile);
+		
+		event.setPlayers(players);
+		
+		players.forEach(p -> {
+			LOGGER.info("Novo Player {}", p);
+		});
+		
+		Optional<Event> newEvent = service.save(event);
+		
+		if (!newEvent.isPresent()) {
+			response.addErrorMessage("Event not created");
+			return ResponseEntity.badRequest().body(response);
+		}
+		
+		
+		/*		
+		List<Dkp> dkps = parserService.parseDkpHistory(loadedFile);
+
+		dkps.forEach(dkp -> {
+			dkp.setEvent(newEvent.get());
+			LOGGER.info("Novo Historico DKP {}", dkp);
+		});
+		
+		event.setDkps(dkps);
+		*/
+		EventDto responseDto = convertEventDto(newEvent.get());
+		response.setData(responseDto);
+		
+		return ResponseEntity.ok(response);
+
 	}
 
 }

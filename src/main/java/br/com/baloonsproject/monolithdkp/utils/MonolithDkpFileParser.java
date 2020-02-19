@@ -21,11 +21,11 @@ public class MonolithDkpFileParser {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MonolithDkpFileParser.class);
 
 	public static List<Loot> getLootHistory(Elements currentLootHistory) {
-		
-		if(currentLootHistory == null) {
+
+		if (currentLootHistory == null) {
 			throw new IllegalArgumentException("Html element can't be null");
 		}
-		
+
 		List<Loot> list = new ArrayList<>();
 
 		LOGGER.info("Parsing loot History...");
@@ -144,6 +144,7 @@ public class MonolithDkpFileParser {
 					for (String playerName : playerNames) {
 						Player p = new Player();
 						p.setNickname(playerName);
+						p.setClassType(ClassTypeEnum.getByString(""));
 
 						Dkp dkp = new Dkp();
 						dkp.setDate(dataHistorico);
@@ -166,6 +167,30 @@ public class MonolithDkpFileParser {
 		}
 		LOGGER.info("Parse of DKP History ended found {} entries.", dkpList.size());
 		return dkpList;
+	}
+
+	public static List<Player> getPlayers(Elements currentDkpElements) {
+		List<Player> players = new ArrayList<>();
+
+		for (Element dkpPlayerElement : currentDkpElements) {
+			Elements playerNameElement = dkpPlayerElement.getElementsByClass("divPlayer");
+			Elements playerClassType = dkpPlayerElement.getElementsByClass("divClass");
+//			Elements playerDKP = dkpPlayerElement.getElementsByClass("divDKP");
+
+			if (!playerNameElement.text().isEmpty() && !playerClassType.select("img").attr("src").isEmpty()) {
+
+				MonolithWowZamimgClassTypeEnum monolithWowZamimgClassTypeEnum = MonolithWowZamimgClassTypeEnum
+						.getByIcon(playerClassType.select("img").attr("src"));
+
+				Player p = new Player();
+				p.setNickname(playerNameElement.text());
+				p.setClassType(ClassTypeEnum.getByString(monolithWowZamimgClassTypeEnum.getClassType()));
+
+				players.add(p);
+			}
+		}
+
+		return players;
 	}
 
 }

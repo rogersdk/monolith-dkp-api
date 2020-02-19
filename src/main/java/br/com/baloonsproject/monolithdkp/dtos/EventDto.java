@@ -2,19 +2,12 @@ package br.com.baloonsproject.monolithdkp.dtos;
 
 import java.util.Date;
 
-import javax.persistence.Transient;
-
-import org.springframework.web.multipart.MultipartFile;
-
 public class EventDto {
 
 	private Long id;
 	private String name;
 	private String fileName;
 	private Date date;
-
-	@Transient
-	private MultipartFile file;
 
 	public EventDto() {
 		// Default constructor
@@ -50,14 +43,6 @@ public class EventDto {
 
 	public void setDate(Date date) {
 		this.date = date;
-	}
-
-	public MultipartFile getFile() {
-		return file;
-	}
-
-	public void setFile(MultipartFile file) {
-		this.file = file;
 	}
 
 	@Override

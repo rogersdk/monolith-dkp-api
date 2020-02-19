@@ -12,6 +12,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -72,9 +73,13 @@ public class Event implements Serializable {
 		this.fileName = fileName;
 	}
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	public List<Player> getPlayers() {
 		return players;
+	}
+
+	public void setPlayers(List<Player> players) {
+		this.players = players;
 	}
 
 	@OneToMany(mappedBy = "event", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -84,10 +89,6 @@ public class Event implements Serializable {
 
 	public void setDkps(List<Dkp> dkps) {
 		this.dkps = dkps;
-	}
-
-	public void setPlayers(List<Player> players) {
-		this.players = players;
 	}
 
 	@Override

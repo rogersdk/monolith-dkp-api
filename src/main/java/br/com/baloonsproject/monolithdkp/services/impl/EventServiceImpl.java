@@ -24,7 +24,7 @@ public class EventServiceImpl implements EventService {
 		LOGGER.info("Saving {}", event);
 		return Optional.ofNullable(repository.save(event));
 	}
-
+	
 	@Override
 	public Optional<Event> findByFileName(String fileName) {
 		LOGGER.info("Searching for an event by the fileName of {}", fileName);

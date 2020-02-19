@@ -31,4 +31,10 @@ public class EventServiceImpl implements EventService {
 		return Optional.ofNullable(repository.findByFileName(fileName));
 	}
 
+	@Override
+	public Optional<Event> findById(Long id) {
+		LOGGER.info("Searching for an event by id {}", id);
+		return repository.findById(id);
+	}
+
 }

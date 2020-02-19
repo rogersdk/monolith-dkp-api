@@ -2,7 +2,6 @@ package br.com.baloonsproject.monolithdkp.controllers;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -18,6 +17,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.baloonsproject.monolithdkp.api.entities.Event;
@@ -43,15 +44,15 @@ public class EventController {
 	 * @param fileName
 	 * @return
 	 */
-	@GetMapping(value = "/fileName/{fileName}")
-	public ResponseEntity<Response<EventDto>> findByFileName(@PathVariable("fileName") String fileName) {
-		LOGGER.info("");
+	@GetMapping(value = "/id/{id}")
+	public ResponseEntity<Response<EventDto>> findByFileName(@PathVariable("id") Long id) {
+		LOGGER.info("Searching for an Event with id {}", id);
 		Response<EventDto> response = new Response<>();
-		Optional<Event> event = service.findByFileName(fileName);
+		Optional<Event> event = service.findById(id);
 
 		if (!event.isPresent()) {
-			LOGGER.info("");
-			response.getErrors().add("MESSAGE OF NOT FOUND");
+			LOGGER.info("No event found");
+			response.getErrors().add(String.format("No event found with id %d",id));
 			return ResponseEntity.badRequest().body(response);
 		}
 
@@ -64,10 +65,15 @@ public class EventController {
 		return dto;
 	}
 
-	@PostMapping(value = "/")
-	public ResponseEntity<Response<EventDto>> registerEvent(@Valid @RequestBody EventDto eventDto,
-			BindingResult result) throws UnsupportedEncodingException, IOException {
-		LOGGER.info("");
+	@PostMapping
+	public String teste() {
+		return "{\"status\": \"ok\"}";
+	}
+	
+//	@PostMapping(value = "/")
+	public ResponseEntity<Response<EventDto>> registerEvent(@Valid @RequestBody EventDto eventDto, BindingResult result)
+			throws UnsupportedEncodingException, IOException {
+		LOGGER.info("dsd");
 
 		Event eventToBeSaved = convertDtoToEvent(eventDto);
 

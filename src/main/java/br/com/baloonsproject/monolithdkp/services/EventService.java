@@ -21,4 +21,10 @@ public interface EventService {
 	 * @return
 	 */
 	Optional<Event> findByFileName(String fileName);
+
+	/**
+	 * @param id
+	 * @return
+	 */
+	Optional<Event> findById(Long id);
 }

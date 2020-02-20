@@ -21,11 +21,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import br.com.baloonsproject.monolithdkp.api.entities.Dkp;
 import br.com.baloonsproject.monolithdkp.api.entities.Event;
+import br.com.baloonsproject.monolithdkp.api.entities.Loot;
+import br.com.baloonsproject.monolithdkp.api.entities.Mob;
 import br.com.baloonsproject.monolithdkp.api.entities.Player;
 import br.com.baloonsproject.monolithdkp.dtos.EventDto;
 import br.com.baloonsproject.monolithdkp.response.Response;
 import br.com.baloonsproject.monolithdkp.services.EventService;
+import br.com.baloonsproject.monolithdkp.services.LootService;
 import br.com.baloonsproject.monolithdkp.services.MonolithDkpParser;
 import br.com.baloonsproject.monolithdkp.services.PlayerService;
 import br.com.baloonsproject.monolithdkp.utils.DateUtils;
@@ -38,13 +42,16 @@ public class EventController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(EventController.class);
 
 	@Autowired
-	private EventService eventService;
-
-	@Autowired
 	private MonolithDkpParser parserService;
 
 	@Autowired
+	private EventService eventService;
+
+	@Autowired
 	private PlayerService playerService;
+
+	@Autowired
+	private LootService lootService;
 
 	public EventController() {
 		// Default Constructor
@@ -82,20 +89,58 @@ public class EventController {
 	@PostMapping(value = "")
 	public ResponseEntity<Response<EventDto>> registerEvent(@RequestParam MultipartFile file,
 			@RequestParam String eventName) throws IOException {
-		LOGGER.info("dsd");
+		LOGGER.info("Event register start...");
 		Response<EventDto> response = new Response<>();
-
-		Event event = new Event();
-		event.setName(eventName);
 
 		Path filepath = Paths.get("/tmp", file.getOriginalFilename());
 		File loadedFile = filepath.toFile();
-
+		
+		
+		Event event = new Event();
+		event.setName(eventName);
 		event.setFileName(loadedFile.getName());
 		event.setDate(DateUtils.getDateFromFileName(loadedFile.getName()));
 
-//		Optional<Event> newEvent = eventService.save(event);
+		List<Player> players = parsePlayers(loadedFile);
 
+		event.setPlayers(players);
+
+		Optional<Event> newEvent = eventService.save(event);
+
+		List<Loot> loots = parserService.parseLootHistory(loadedFile);
+
+		for (Loot l : loots) {
+			Dkp dkp = l.getDkp();
+			dkp.setEvent(event);
+			for (Player p : players) {
+				if (dkp.getPlayer().getNickname().equals(p.getNickname())) {
+					dkp.setPlayer(p);
+				}
+			}
+
+			Optional<Mob> m = lootService.findMobByName(l.getFrom().getName());
+			if (m.isPresent()) {
+				l.setFrom(m.get());
+			}
+
+			lootService.save(l);
+		}
+
+		if (!newEvent.isPresent()) {
+			response.addErrorMessage("Event not created");
+			return ResponseEntity.badRequest().body(response);
+		}
+
+		EventDto responseDto = convertEventDto(newEvent.get());
+		response.setData(responseDto);
+
+		LOGGER.info("End of registering the new event {}", newEvent.get());
+		
+		return ResponseEntity.ok(response);
+
+	}
+
+	private List<Player> parsePlayers(File loadedFile) throws IOException {
 		List<Player> parsedPlayers = parserService.parsePlayers(loadedFile);
 
 		List<Player> players = playerService
@@ -103,53 +148,13 @@ public class EventController {
 
 		List<String> existingPlayersNicknames = players.stream().map(Player::getNickname).collect(Collectors.toList());
 
-		for(Player p: parsedPlayers) {
+		for (Player p : parsedPlayers) {
 			if (!existingPlayersNicknames.contains(p.getNickname())) {
 				LOGGER.info("New player found {}", p);
 				players.add(p);
-//				newEvent.get().getPlayers().add(p);
 			}
 		}
-		
-/*		parsedPlayers.forEach(p -> {
-			if (!existingPlayersNicknames.contains(p.getNickname())) {
-				LOGGER.info("New player found {}", p);
-				Player newPlayer = new Player();
-				newPlayer.setNickname(p.getNickname());
-				newPlayer.setClassType(p.getClassType());
-				
-				Optional<Player> savedPlayer = playerService.save(p);
-
-				if (!savedPlayer.isPresent()) {
-					throw new IllegalStateException("Error trying to save a new player.");
-				}
-				newEvent.get().getPlayers().add(p);
-//				players.add(p);
-			}
-		});*/
-
-		event.setPlayers(players);
-		
-		Optional<Event> newEvent = eventService.save(event);
-		
-		if (!newEvent.isPresent()) {
-			response.addErrorMessage("Event not created");
-			return ResponseEntity.badRequest().body(response);
-		}
-
-		/*
-		 * List<Dkp> dkps = parserService.parseDkpHistory(loadedFile);
-		 * 
-		 * dkps.forEach(dkp -> { dkp.setEvent(newEvent.get());
-		 * LOGGER.info("Novo Historico DKP {}", dkp); });
-		 * 
-		 * event.setDkps(dkps);
-		 */
-		EventDto responseDto = convertEventDto(newEvent.get());
-		response.setData(responseDto);
-
-		return ResponseEntity.ok(response);
-
+		return players;
 	}
 
 }

@@ -21,18 +21,18 @@ public class Response<T> {
 	}
 
 	public List<String> getErrors() {
-		if (this.errors == null) {
-			this.errors = new ArrayList<>();
-		}
 		return errors;
 	}
 
 	public void setErrors(List<String> errors) {
 		this.errors = errors;
 	}
-	
+
 	public void addErrorMessage(String msg) {
+		if (this.errors == null) {
+			this.errors = new ArrayList<>();
+		}
 		this.errors.add(msg);
 	}
-	
+
 }

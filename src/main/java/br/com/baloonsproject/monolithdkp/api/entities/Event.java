@@ -28,6 +28,7 @@ public class Event implements Serializable {
 	private String name;
 	private Date date;
 	private String fileName;
+	private String checksum;
 	private List<Player> players = new ArrayList<>();
 	private List<Dkp> dkps = new ArrayList<>();
 
@@ -67,6 +68,15 @@ public class Event implements Serializable {
 	@Column(name = "file_name")
 	public String getFileName() {
 		return fileName;
+	}
+
+	@Column(name = "checksum")
+	public String getChecksum() {
+		return checksum;
+	}
+
+	public void setChecksum(String checksum) {
+		this.checksum = checksum;
 	}
 
 	public void setFileName(String fileName) {

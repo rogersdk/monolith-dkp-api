@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,11 +31,13 @@ import br.com.baloonsproject.monolithdkp.api.entities.Mob;
 import br.com.baloonsproject.monolithdkp.api.entities.Player;
 import br.com.baloonsproject.monolithdkp.dtos.EventDto;
 import br.com.baloonsproject.monolithdkp.response.Response;
+import br.com.baloonsproject.monolithdkp.services.DkpService;
 import br.com.baloonsproject.monolithdkp.services.EventService;
 import br.com.baloonsproject.monolithdkp.services.LootService;
 import br.com.baloonsproject.monolithdkp.services.MonolithDkpParser;
 import br.com.baloonsproject.monolithdkp.services.PlayerService;
 import br.com.baloonsproject.monolithdkp.utils.DateUtils;
+import br.com.baloonsproject.monolithdkp.utils.FileCheckSumMD5;
 
 @RestController
 @RequestMapping("/api/events")
@@ -52,6 +57,9 @@ public class EventController {
 
 	@Autowired
 	private LootService lootService;
+
+	@Autowired
+	private DkpService dkpService;
 
 	public EventController() {
 		// Default Constructor
@@ -88,25 +96,91 @@ public class EventController {
 
 	@PostMapping(value = "")
 	public ResponseEntity<Response<EventDto>> registerEvent(@RequestParam MultipartFile file,
-			@RequestParam String eventName) throws IOException {
+			@RequestParam String eventName) throws IOException, NoSuchAlgorithmException {
 		LOGGER.info("Event register start...");
 		Response<EventDto> response = new Response<>();
 
 		Path filepath = Paths.get("/tmp", file.getOriginalFilename());
 		File loadedFile = filepath.toFile();
-		
-		
+
+		String uploadedFileChecksum = FileCheckSumMD5.checksum(filepath.toString(), MessageDigest.getInstance("MD5"));
+
+		Optional<Event> existingEvent = eventService.findByChecksum(uploadedFileChecksum);
+
+		if (existingEvent.isPresent()) {
+			LOGGER.info("This file is already parsed {}", existingEvent.get().getChecksum());
+			response.addErrorMessage("This file has already been parsed.");
+
+			return ResponseEntity.badRequest().body(response);
+		}
+
 		Event event = new Event();
 		event.setName(eventName);
 		event.setFileName(loadedFile.getName());
 		event.setDate(DateUtils.getDateFromFileName(loadedFile.getName()));
+		event.setChecksum(uploadedFileChecksum);
 
 		List<Player> players = parsePlayers(loadedFile);
 
 		event.setPlayers(players);
 
+		List<Dkp> dkps = parserService.parseDkpHistory(loadedFile);
+
 		Optional<Event> newEvent = eventService.save(event);
 
+		List<Player> playersInDkpHistory = dkps.stream().map(Dkp::getPlayer).collect(Collectors.toList());
+
+		List<Player> playersInDkpHistoryAlreadyRegistered = playerService.findAllByNickname(
+				playersInDkpHistory.stream().map(Player::getNickname).distinct().collect(Collectors.toList()));
+
+		List<String> playersInDkpHistoryAlreadyRegisteredNicknames = playersInDkpHistoryAlreadyRegistered.stream()
+				.map(Player::getNickname).collect(Collectors.toList());
+
+		for (Dkp dkp : dkps) {
+			dkp.setEvent(event);
+
+			Player dkpPlayer = dkp.getPlayer();
+
+			for (Player existingPlayer : playersInDkpHistoryAlreadyRegistered) {
+				if (dkpPlayer.getNickname().equals(existingPlayer.getNickname())) {
+					dkp.setPlayer(existingPlayer);
+				}
+			}
+
+			if (!playersInDkpHistoryAlreadyRegisteredNicknames.contains(dkpPlayer.getNickname().trim())) {
+				LOGGER.info("New player found {}", dkpPlayer);
+				playerService.save(dkpPlayer);
+			}
+
+			/*
+			 * for (Player p : players) { if
+			 * (dkp.getPlayer().getNickname().equals(p.getNickname())) { dkp.setPlayer(p);
+			 * continue; }
+			 * 
+			 * }
+			 */
+
+			dkpService.save(dkp);
+
+		}
+
+		parseLoots(loadedFile, event, players);
+
+		if (!newEvent.isPresent()) {
+			response.addErrorMessage("Event not created");
+			return ResponseEntity.badRequest().body(response);
+		}
+
+		EventDto responseDto = convertEventDto(newEvent.get());
+		response.setData(responseDto);
+
+		LOGGER.info("End of registering the new event {}", newEvent.get());
+
+		return ResponseEntity.ok(response);
+
+	}
+
+	private void parseLoots(File loadedFile, Event event, List<Player> players) throws IOException {
 		List<Loot> loots = parserService.parseLootHistory(loadedFile);
 
 		for (Loot l : loots) {
@@ -125,19 +199,6 @@ public class EventController {
 
 			lootService.save(l);
 		}
-
-		if (!newEvent.isPresent()) {
-			response.addErrorMessage("Event not created");
-			return ResponseEntity.badRequest().body(response);
-		}
-
-		EventDto responseDto = convertEventDto(newEvent.get());
-		response.setData(responseDto);
-
-		LOGGER.info("End of registering the new event {}", newEvent.get());
-		
-		return ResponseEntity.ok(response);
-
 	}
 
 	private List<Player> parsePlayers(File loadedFile) throws IOException {

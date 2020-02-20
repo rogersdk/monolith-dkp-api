@@ -24,7 +24,7 @@ public class EventServiceImpl implements EventService {
 		LOGGER.info("Saving {}", event);
 		return Optional.ofNullable(repository.save(event));
 	}
-	
+
 	@Override
 	public Optional<Event> findByFileName(String fileName) {
 		LOGGER.info("Searching for an event by the fileName of {}", fileName);
@@ -35,6 +35,12 @@ public class EventServiceImpl implements EventService {
 	public Optional<Event> findById(Long id) {
 		LOGGER.info("Searching for an event by id {}", id);
 		return repository.findById(id);
+	}
+
+	@Override
+	public Optional<Event> findByChecksum(String checksum) {
+		LOGGER.info("Searching for an event by its checksum{}", checksum);
+		return repository.findByChecksum(checksum);
 	}
 
 }

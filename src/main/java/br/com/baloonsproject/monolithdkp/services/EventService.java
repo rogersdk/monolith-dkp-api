@@ -27,4 +27,10 @@ public interface EventService {
 	 * @return
 	 */
 	Optional<Event> findById(Long id);
+
+	/**
+	 * @param checksum
+	 * @return
+	 */
+	Optional<Event> findByChecksum(String checksum);
 }

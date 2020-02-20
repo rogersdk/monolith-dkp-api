@@ -68,16 +68,16 @@ public class MonolithDkpFileParser {
 					playerLoot.setWowheadItemId(Integer.valueOf(wowHeadItemId));
 				}
 
+				// Setup mob values
+				mobLoot.setName(dropMobName);
+				
 				// Setup dkp values
 				dkp.setDate(dropDate);
 				dkp.setDescription(String.format("Loot %d from %s", playerLoot.getWowheadItemId(),
 						playerLoot.getFrom().getName()));
 				dkp.setPlayer(player);
 				dkp.setValue(Integer.valueOf(dkpSpentLoot));
-
-				// Setup mob values
-				mobLoot.setName(dropMobName);
-
+				
 				// Setup player values
 				player.setNickname(lootPlayer.text());
 				player.setClassType(ClassTypeEnum.NONE);
@@ -143,7 +143,7 @@ public class MonolithDkpFileParser {
 					int dkpValueIndex = 0;
 					for (String playerName : playerNames) {
 						Player p = new Player();
-						p.setNickname(playerName);
+						p.setNickname(playerName.trim());
 						p.setClassType(ClassTypeEnum.getByString(""));
 
 						Dkp dkp = new Dkp();
@@ -183,7 +183,7 @@ public class MonolithDkpFileParser {
 						.getByIcon(playerClassType.select("img").attr("src"));
 
 				Player p = new Player();
-				p.setNickname(playerNameElement.text());
+				p.setNickname(playerNameElement.text().trim());
 				p.setClassType(ClassTypeEnum.getByString(monolithWowZamimgClassTypeEnum.getClassType()));
 
 				players.add(p);

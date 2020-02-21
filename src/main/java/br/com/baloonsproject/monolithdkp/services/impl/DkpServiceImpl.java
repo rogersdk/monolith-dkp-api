@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.baloonsproject.monolithdkp.api.entities.Dkp;
+import br.com.baloonsproject.monolithdkp.dtos.DkpDto;
 import br.com.baloonsproject.monolithdkp.repositories.DkpRepository;
 import br.com.baloonsproject.monolithdkp.services.DkpService;
 
@@ -23,6 +24,12 @@ public class DkpServiceImpl implements DkpService {
 	public Optional<Dkp> save(Dkp dkp) {
 		LOGGER.info("Saving a new dkp {}", dkp);
 		return Optional.ofNullable(repository.save(dkp));
+	}
+
+	@Override
+	public Optional<DkpDto> findUpdatedDkpByPlayerId(Long playerId) {
+		LOGGER.info("Searching for the updated player dkp of player {}", playerId);
+		return Optional.ofNullable(repository.findUpdatedDkpByPlayerId(playerId));
 	}
 
 }

@@ -9,6 +9,11 @@ public class PlayerDto {
 		// Default constructor
 	}
 
+	public PlayerDto(Long playerId, String nickname) {
+		this.id = playerId;
+		this.nickname = nickname;
+	}
+
 	public Long getId() {
 		return id;
 	}

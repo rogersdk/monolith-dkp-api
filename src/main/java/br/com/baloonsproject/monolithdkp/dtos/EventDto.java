@@ -13,6 +13,10 @@ public class EventDto {
 		// Default constructor
 	}
 
+	public EventDto(Long eventId) {
+		this.id = eventId;
+	}
+
 	public Long getId() {
 		return id;
 	}

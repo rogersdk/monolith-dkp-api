@@ -33,4 +33,10 @@ public class PlayerServiceImpl implements PlayerService {
 		return Optional.ofNullable(repository.save(player));
 	}
 
+	@Override
+	public Optional<Player> findById(Long id) {
+		LOGGER.info("Searching player with id {}", id);
+		return repository.findById(id);
+	}
+
 }

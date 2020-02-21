@@ -1,12 +1,12 @@
 package br.com.baloonsproject.monolithdkp.controllers;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -77,7 +77,7 @@ public class EventController {
 
 		if (!event.isPresent()) {
 			LOGGER.info("No event found");
-			response.getErrors().add(String.format("No event found with id %d", id));
+			response.addErrorMessage(String.format("No event found with id %d", id));
 			return ResponseEntity.badRequest().body(response);
 		}
 
@@ -101,15 +101,16 @@ public class EventController {
 		Response<EventDto> response = new Response<>();
 
 		Path filepath = Paths.get("/tmp", file.getOriginalFilename());
-		File loadedFile = filepath.toFile();
 
-		String uploadedFileChecksum = FileCheckSumMD5.checksum(filepath.toString(), MessageDigest.getInstance("MD5"));
+		File loadedFile = convertMultiPartToFile(file);
+
+		String uploadedFileChecksum = FileCheckSumMD5.checksum(loadedFile, MessageDigest.getInstance("MD5"));
 
 		Optional<Event> existingEvent = eventService.findByChecksum(uploadedFileChecksum);
 
 		if (existingEvent.isPresent()) {
-			LOGGER.info("This file is already parsed {}", existingEvent.get().getChecksum());
-			response.addErrorMessage("This file has already been parsed.");
+			LOGGER.info("This file has been already parsed {}", existingEvent.get().getChecksum());
+			response.addErrorMessage("This file has been already parsed.");
 
 			return ResponseEntity.badRequest().body(response);
 		}
@@ -151,14 +152,6 @@ public class EventController {
 				LOGGER.info("New player found {}", dkpPlayer);
 				playerService.save(dkpPlayer);
 			}
-
-			/*
-			 * for (Player p : players) { if
-			 * (dkp.getPlayer().getNickname().equals(p.getNickname())) { dkp.setPlayer(p);
-			 * continue; }
-			 * 
-			 * }
-			 */
 
 			dkpService.save(dkp);
 
@@ -216,6 +209,14 @@ public class EventController {
 			}
 		}
 		return players;
+	}
+
+	private File convertMultiPartToFile(MultipartFile file) throws IOException {
+		File convFile = new File(file.getOriginalFilename());
+		FileOutputStream fos = new FileOutputStream(convFile);
+		fos.write(file.getBytes());
+		fos.close();
+		return convFile;
 	}
 
 }

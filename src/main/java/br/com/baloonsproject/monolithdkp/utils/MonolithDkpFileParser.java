@@ -15,6 +15,7 @@ import br.com.baloonsproject.monolithdkp.api.entities.Loot;
 import br.com.baloonsproject.monolithdkp.api.entities.Mob;
 import br.com.baloonsproject.monolithdkp.api.entities.Player;
 import br.com.baloonsproject.monolithdkp.api.enums.ClassTypeEnum;
+import br.com.baloonsproject.monolithdkp.api.enums.MonolithWowZamimgClassTypeEnum;
 
 public class MonolithDkpFileParser {
 
@@ -70,14 +71,14 @@ public class MonolithDkpFileParser {
 
 				// Setup mob values
 				mobLoot.setName(dropMobName);
-				
+
 				// Setup dkp values
 				dkp.setDate(dropDate);
 				dkp.setDescription(String.format("Loot %d from %s", playerLoot.getWowheadItemId(),
 						playerLoot.getFrom().getName()));
 				dkp.setPlayer(player);
 				dkp.setValue(Integer.valueOf(dkpSpentLoot));
-				
+
 				// Setup player values
 				player.setNickname(lootPlayer.text());
 				player.setClassType(ClassTypeEnum.NONE);

@@ -17,4 +17,10 @@ public interface PlayerService {
 	 * @return
 	 */
 	Optional<Player> save(Player player);
+
+	/**
+	 * @param id
+	 * @return
+	 */
+	Optional<Player> findById(Long id);
 }

@@ -7,6 +7,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,6 +31,7 @@ import br.com.baloonsproject.monolithdkp.api.entities.Event;
 import br.com.baloonsproject.monolithdkp.api.entities.Loot;
 import br.com.baloonsproject.monolithdkp.api.entities.Mob;
 import br.com.baloonsproject.monolithdkp.api.entities.Player;
+import br.com.baloonsproject.monolithdkp.dtos.DkpDto;
 import br.com.baloonsproject.monolithdkp.dtos.EventDto;
 import br.com.baloonsproject.monolithdkp.response.Response;
 import br.com.baloonsproject.monolithdkp.services.DkpService;
@@ -100,7 +103,7 @@ public class EventController {
 		LOGGER.info("Event register start...");
 		Response<EventDto> response = new Response<>();
 
-		Path filepath = Paths.get("/tmp", file.getOriginalFilename());
+//		Path filepath = Paths.get("/tmp", file.getOriginalFilename());
 
 		File loadedFile = convertMultiPartToFile(file);
 
@@ -162,6 +165,27 @@ public class EventController {
 		if (!newEvent.isPresent()) {
 			response.addErrorMessage("Event not created");
 			return ResponseEntity.badRequest().body(response);
+		}
+
+		List<Dkp> updatedDkpCheck = parserService.parseUpdatedDkpCheck(loadedFile, dkps);
+
+//		dkpService.updateOffsetDkps(updatedDkpCheck);
+		
+		for (Dkp updatedDkpItem : updatedDkpCheck) {
+			List<Player> storedPlayers = playerService
+					.findAllByNickname(Arrays.asList(updatedDkpItem.getPlayer().getNickname()));
+
+			Optional<DkpDto> dkpDto = dkpService.findUpdatedDkpByPlayerId(storedPlayers.get(0).getId());
+
+			int historyDkpSummedValue = dkpDto.get().getValue();
+
+				Dkp offsetDkp = new Dkp();
+				offsetDkp.setDate(new Date());
+				offsetDkp.setDescription("OFFSET DKP PARSER HISTORY");
+				offsetDkp.setPlayer(storedPlayers.get(0));
+				offsetDkp.setValue(Math.subtractExact(updatedDkpItem.getValue(), historyDkpSummedValue));
+				offsetDkp.setEvent(event);
+				dkpService.save(offsetDkp);
 		}
 
 		EventDto responseDto = convertEventDto(newEvent.get());

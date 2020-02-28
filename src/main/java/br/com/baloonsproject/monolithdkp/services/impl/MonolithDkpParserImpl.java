@@ -2,7 +2,9 @@ package br.com.baloonsproject.monolithdkp.services.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -44,14 +46,12 @@ public class MonolithDkpParserImpl implements MonolithDkpParser {
 					.select("#LootHistory > div.divTable > div.divTableBody > div.divTableRow");
 
 			List<Dkp> historicoDkp = MonolithDkpFileParser.getDkpHistory(currentDkpHistory);
-//			LOGGER.info("Dkp History Parsed: {}", historicoDkp);
 
 			List<Loot> lootHistory = MonolithDkpFileParser.getLootHistory(currentLootHistory);
-//			LOGGER.info("Loot parsed: {}", lootHistory);
 
 			event.setFileName(file.getName());
 			event.setDate(DateUtils.getDateFromFileName(file.getName()));
-			
+
 			LOGGER.info("File {} successfully parsed.", file.getName());
 			return event;
 		} catch (Exception e) {
@@ -90,6 +90,17 @@ public class MonolithDkpParserImpl implements MonolithDkpParser {
 		List<Player> players = MonolithDkpFileParser.getPlayers(currentLootHistory);
 		LOGGER.info("All players has been processed. File {} successfully parsed.", file.getName());
 		return players;
+	}
+
+	@Override
+	public List<Dkp> parseUpdatedDkpCheck(File file, List<Dkp> dkpsFromHistoryTable) throws IOException {
+		LOGGER.info(("Processing Dkp history from file: " + file.getName()));
+		Document doc = Jsoup.parse(file, "UTF-8", file.toString());
+		Elements updatedDkp = doc.select("#DKP > div.divTable > div.divTableBody > div.divTableRow");
+		LOGGER.info("File {} successfully parsed.", file.getName());
+		List<Dkp> dkps = MonolithDkpFileParser.getUpdatedDkp(updatedDkp);
+		LOGGER.info("All dkps has been processed. File {} successfully parsed.", file.getName());
+		return dkps;
 	}
 
 }

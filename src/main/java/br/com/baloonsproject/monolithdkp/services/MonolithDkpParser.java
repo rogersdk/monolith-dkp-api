@@ -18,4 +18,6 @@ public interface MonolithDkpParser {
 	List<Loot> parseLootHistory(File file) throws IOException;
 
 	List<Player> parsePlayers(File file) throws IOException;
+
+	List<Dkp> parseUpdatedDkpCheck(File loadedFile, List<Dkp> dkpsFromHistoryTable) throws IOException;
 }

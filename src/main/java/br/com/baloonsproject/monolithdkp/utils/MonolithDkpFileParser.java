@@ -20,7 +20,12 @@ import br.com.baloonsproject.monolithdkp.api.enums.MonolithWowZamimgClassTypeEnu
 public class MonolithDkpFileParser {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MonolithDkpFileParser.class);
+	private static final String UPDATED_DKP_DESCRIPTION = "Dkp History that fills up the missing dkp history values.";
 
+	private MonolithDkpFileParser() {
+		
+	}
+	
 	public static List<Loot> getLootHistory(Elements currentLootHistory) {
 
 		if (currentLootHistory == null) {
@@ -192,6 +197,35 @@ public class MonolithDkpFileParser {
 		}
 
 		return players;
+	}
+
+	public static List<Dkp> getUpdatedDkp(Elements currentDkpElements) {
+		List<Dkp> updatedDkp = new ArrayList<>();
+		for (Element dkpPlayerElement : currentDkpElements) {
+			Elements playerNameElement = dkpPlayerElement.getElementsByClass("divPlayer");
+			Elements playerClassType = dkpPlayerElement.getElementsByClass("divClass");
+			Elements playerDKP = dkpPlayerElement.getElementsByClass("divDKP");
+
+			if (!playerNameElement.text().isEmpty() && !playerClassType.select("img").attr("src").isEmpty()) {
+
+				MonolithWowZamimgClassTypeEnum monolithWowZamimgClassTypeEnum = MonolithWowZamimgClassTypeEnum
+						.getByIcon(playerClassType.select("img").attr("src"));
+
+				Player p = new Player();
+				p.setNickname(playerNameElement.text().trim());
+				p.setClassType(ClassTypeEnum.getByString(monolithWowZamimgClassTypeEnum.getClassType()));
+
+				Dkp dkp = new Dkp();
+				dkp.setDescription(UPDATED_DKP_DESCRIPTION);
+				dkp.setDate(new Date());
+				dkp.setValue(Integer.valueOf(playerDKP.text()));
+
+				dkp.setPlayer(p);
+				updatedDkp.add(dkp);
+			}
+		}
+
+		return updatedDkp;
 	}
 
 }

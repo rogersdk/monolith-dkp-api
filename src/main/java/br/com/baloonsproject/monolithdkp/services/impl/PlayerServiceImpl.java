@@ -24,7 +24,7 @@ public class PlayerServiceImpl implements PlayerService {
 	@Override
 	public List<Player> findAllByNickname(List<String> nicknames) {
 		LOGGER.info("Searching all players by nicknames of {}", nicknames);
-		return repository.findAll(Sort.by(Sort.Direction.ASC, "nickname"));
+		return repository.findAllByNickname(nicknames);
 	}
 
 	@Override
